@@ -1,0 +1,58 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+
+		"namespace": {
+			"type": "string",
+			"required": true
+		},
+
+		"application": {
+			"type": "string",
+			"required": true
+		},
+
+		"component": {
+			"type": "string",
+			"required": true
+		},
+
+		"name": {
+			"type": "string",
+			"required": true
+		},
+
+		"description": {
+			"type": "string",
+			"required": false
+		},
+		
+		"main": {
+			"type": "string",
+			"required": false
+		},
+
+		"event": {
+			"type": ["boolean", "string"],
+			"required": false
+		},
+
+		"docco": {
+			"type": "boolean",
+			"required": false
+		},
+
+		"include": {
+			"type": "array",
+			"required": false
+		},
+
+		"locales": {
+			"type": "array",
+			"required": false
+		}		
+
+	}
+
+}

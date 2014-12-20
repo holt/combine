@@ -11,9 +11,11 @@ wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4, mult
 /* global require, module */
 
 var 
-    hb          = require('handlebars'),
-    CleanCSS    = require('clean-css'),
-    fs          = require('fs');
+    hb              = require('handlebars'),
+    CleanCSS        = require('clean-css'),
+    autoprefixer    = require('autoprefixer'),
+    fs              = require('fs');
+
 
 module.exports = function (grunt) {
 
@@ -95,6 +97,11 @@ module.exports = function (grunt) {
                     var fullname = component + '-' + file.replace(conf.suffixes.css, '') + '-' + this.theme;
 
                     // Replace single-quotes and return spaces, then compress and normalize the string data
+
+
+
+                    stylesheet = autoprefixer.process(stylesheet).css;
+
                     stylesheet = stylesheet.replace(/'/gm, '"');
                     stylesheet = new CleanCSS().minify(stylesheet);                    
                     stylesheet = stylesheet.replace(/\s\s/gm, '');

@@ -16,7 +16,6 @@ var
     autoprefixer    = require('autoprefixer'),
     fs              = require('fs');
 
-
 module.exports = function (grunt) {
 
     "use strict";
@@ -96,14 +95,12 @@ module.exports = function (grunt) {
                     // Create a detailed identity for the stylesheet
                     var fullname = component + '-' + file.replace(conf.suffixes.css, '') + '-' + this.theme;
 
-                    // Replace single-quotes and return spaces, then compress and normalize the string data
-
-
+                    // Replace single-quotes and return spaces, run the autoprefixer and compress and 
+                    // normalize the string data
 
                     stylesheet = autoprefixer.process(stylesheet).css;
-
                     stylesheet = stylesheet.replace(/'/gm, '"');
-                    stylesheet = new CleanCSS().minify(stylesheet);                    
+                    stylesheet = new CleanCSS().minify(stylesheet).styles;
                     stylesheet = stylesheet.replace(/\s\s/gm, '');
 
                     // Wrap the stylesheet in the append-to-DOM functionality. The logic ensures that the 

@@ -13,7 +13,8 @@ wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 var 
     uglify      = require('uglify-js'),
     beautify    = require('js-beautify').js_beautify,
-    fs          = require('fs');
+    fs          = require('fs'),
+    moment      = require('moment');
 
 module.exports = function (grunt) {
 
@@ -32,7 +33,7 @@ module.exports = function (grunt) {
             licenses    = conf.data.manifest.licenses,
             timestamp, copystamp, buildstamp, tl_ast, c_ast, compressed_data, uncompressed_data;
 
-        buildstamp  = "\n\n/*  Compiled by combine.js - Copyright (c) 2014 M Holt. Distributed under the MIT License */";
+        buildstamp  = "\n\n/*  Compiled by combine.js - Copyright © 2011-" + moment().year() + " M Holt. Distributed under the MIT License */";
 
         var complete = inj.on(['status'], function (status, fullpath) {
 
@@ -81,7 +82,7 @@ module.exports = function (grunt) {
         var write_release = function (theme, data, locale) {
 
             locale      = locale || 'en-US';
-            copystamp   = "/* Copyright © " + date.getFullYear() + " Citrix. All rights reserved. */\n";
+            copystamp   = "/* Copyright © " + moment().year() + " Citrix. All rights reserved. */\n";
 
             // Uglify compressor / mangler
             tl_ast = uglify.parse(data, {});

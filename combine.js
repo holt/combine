@@ -10,7 +10,7 @@ mootools:false, node:false, nonstandard:false, prototypejs:false, rhino:false, s
 wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 /* global require, process, __dirname */
 
-const VERSION = '2.4.0';
+const VERSION = '2.5.0';
 
 const MANIFEST = 'combine.json';
 const GRNTFILE = 'gruntfile.js';

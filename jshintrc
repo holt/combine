@@ -22,10 +22,10 @@ module.exports = {
 	"plusplus"			:	false,		// true: Prohibit use of `++` & `--`
 
 	"quotmark"			:	true,		// Quotation mark consistency:
-										//		false	: do nothing (default)
-										//		true	: ensure whatever is used is consistent
-										//		"single": require single quotes
-										//		"double": require double quotes
+										//   false		: do nothing (default)
+										//   true	 	: ensure whatever is used is consistent
+										//   "single" 	: require single quotes
+										//   "double" 	: require double quotes
 
 	"undef"				:	true,		// true: Require all non-global variables to be declared (prevents global leaks)
 	"unused"			:	"vars",		// true: Require all defined variables be used

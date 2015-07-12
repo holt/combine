@@ -82,7 +82,7 @@ module.exports = function (grunt) {
         var write_release = function (theme, data, locale) {
 
             locale      = locale || 'en-US';
-            copystamp   = "/* Copyright © " + moment().year() + " Citrix. All rights reserved. */\n";
+            copystamp   = "/* Copyright © " + moment().year() + " holt.org. All rights reserved. */\n";
 
             // Uglify compressor / mangler
             tl_ast = uglify.parse(data, {});

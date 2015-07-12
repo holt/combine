@@ -14,6 +14,7 @@ var
     hb              = require('handlebars'),
     CleanCSS        = require('clean-css'),
     autoprefixer    = require('autoprefixer'),
+    postcss         = require('postcss'),
     fs              = require('fs');
 
 module.exports = function (grunt) {
@@ -97,8 +98,7 @@ module.exports = function (grunt) {
 
                     // Replace single-quotes and return spaces, run the autoprefixer and compress and 
                     // normalize the string data
-
-                    stylesheet = autoprefixer.process(stylesheet).css;
+                    stylesheet = postcss(autoprefixer).process(stylesheet).css;
                     stylesheet = stylesheet.replace(/'/gm, '"');
                     stylesheet = new CleanCSS().minify(stylesheet).styles;
                     stylesheet = stylesheet.replace(/\s\s/gm, '');

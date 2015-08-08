@@ -56,7 +56,7 @@ module.exports = function (grunt) {
                 --status.active;
 
                 if (!status.active) {
-                    done();
+                    setTimeout(function () { done(); }, 250);
                 }
 
             }.bind(this));

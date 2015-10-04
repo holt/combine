@@ -13,97 +13,97 @@ wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 var cradle = require('cradle');
 
 var l10n_db = new (cradle.Connection)('127.0.0.1:5984', 5984, {
-    cache   : false,
-    raw     : false
+	cache	: false,
+	raw		: false
 }).database('l10n');
 
 module.exports = function (grunt) {
 
-    "use strict";
+	"use strict";
 
-    grunt.registerTask('do_l10n', function () {
+	grunt.registerTask('do_l10n', function () {
 
-        grunt.combine.logger.write([{'taskhead': 'Localization'}]);
+		grunt.combine.logger.write([{'taskhead': 'Localization'}]);
 
-        var 
-            pkg     = grunt.pkg,
-            done    = this.async(),
-            inj     = grunt.option('inj'),
-            conf    = inj.get('conf'),
-            mf      = conf.data.manifest,
-            locales = mf.locales;
+		var 
+			pkg		= grunt.pkg,
+			done	= this.async(),
+			inj		= grunt.option('inj'),
+			conf	= inj.get('conf'),
+			mf		= conf.data.manifest,
+			locales	= mf.locales;
 
-        var procResult = function (err, result) {
+		var procResult = function (err, result) {
 
-            // Update the dependency object
-            inj.set('locales', Object.keys(result));
+			// Update the dependency object
+			inj.set('locales', Object.keys(result));
 
-            // Clobber the build if the extractor throws an error
-            err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
+			// Clobber the build if the extractor throws an error
+			err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
 
-            // Iterate over the compiled source, and build a new source package
-            // that contains (themes * locales)
-            var tmpArr = [];
+			// Iterate over the compiled source, and build a new source package
+			// that contains (themes * locales)
+			var tmpArr = [];
 
-            inj.remove('source').add('source', pkg.source);
+			inj.remove('source').add('source', pkg.source);
 
-            pkg.source.forEach(function (theme) { 
+			pkg.source.forEach(function (theme) { 
 
-                // Iterate over locales
-                Object.keys(result).forEach(function (locale) {
-                    tmpArr.push({
-                        name: theme.name,
-                        l10n: locale,
-                        data: theme.data.replace(/%([\w\.])+%/g, function (key) {
-                            return result[locale][key.replace(/[%]+/g, "")] || key;
-                        })                                
-                    });
-                });
+				// Iterate over locales
+				Object.keys(result).forEach(function (locale) {
+					tmpArr.push({
+						name: theme.name,
+						l10n: locale,
+						data: theme.data.replace(/%([\w\.])+%/g, function (key) {
+							return result[locale][key.replace(/[%]+/g, "")] || key;
+						})
+					});
+				});
 
-            });
+			});
 
-            // Update the source package
-            pkg.source = tmpArr;
+			// Update the source package
+			pkg.source = tmpArr;
 
-            // Log out the discovered locales
-            locales.forEach(function (item) {
-                if (result[item]) {
-                    grunt.combine.logger.write([{
-                        'custom': 'Locale: ' + item.bold
-                    }]);
-                }
-            });
+			// Log out the discovered locales
+			locales.forEach(function (item) {
+				if (result[item]) {
+					grunt.combine.logger.write([{
+						'custom': 'Locale: ' + item.bold
+					}]);
+				}
+			});
 
-            // And we're done
-            grunt.combine.logger.write([{
-                'pass': 'Passed'
-            }, {
-                'duration': 'Duration: '
-            }]);
+			// And we're done
+			grunt.combine.logger.write([{
+				'pass': 'Passed'
+			}, {
+				'duration': 'Duration: '
+			}]);
 
-            done();
-        };
+			done();
+		};
 
-        l10n_db.get(conf.data.manifest.application, function (err, doc) {
+		l10n_db.get(conf.data.manifest.application, function (err, doc) {
 
-            if (err || !doc[conf.data.manifest.component]) {
+			if (err || !doc[conf.data.manifest.component]) {
 
-                inj.remove('source').set('locales', ['en-US']).add('source', pkg.source);
+				inj.remove('source').set('locales', ['en-US']).add('source', pkg.source);
 
-                grunt.combine.logger.write([{
-                    'custom': 'Localization database connection error: \n' + JSON.stringify(err, null, 2)
-                }, {
-                    'duration': 'Duration: '
-                }]);
+				grunt.combine.logger.write([{
+					'custom': 'Localization database connection error: \n' + JSON.stringify(err, null, 2)
+				}, {
+					'duration': 'Duration: '
+				}]);
 
-                done();                
-            }
+				done();
+			}
 
-            else {
-                procResult(null, doc[conf.data.manifest.component]);
-            }
-        });
+			else {
+				procResult(null, doc[conf.data.manifest.component]);
+			}
+		});
 
-    });
+	});
 
 };

@@ -14,40 +14,41 @@ var docco = require('docco');
 
 module.exports = function (grunt) {
 
-    "use strict";
+	"use strict";
 
-    grunt.registerTask('do_docco', function () {
+	grunt.registerTask('do_docco', function () {
 
-        grunt.combine.logger.write([{ 'taskhead': 'Docco' }]);
+		grunt.combine.logger.write([{ 'taskhead': 'Docco' }]);
 
-        var arr     = [],
-            inj     = grunt.option('inj'),
-            conf    = inj.get('conf'),
-            pkg     = grunt.pkg,
-            mod     = null,
-            done    = this.async();
+		var 
+            arr		= [],
+			inj		= grunt.option('inj'),
+			conf	= inj.get('conf'),
+			pkg		= grunt.pkg,
+			mod		= null,
+			done	= this.async();
 
-        if (conf.data.manifest.docco) {
-            for (mod in pkg.compileCache) {
-                if (pkg.compileCache.hasOwnProperty(mod)) {
-                    arr.push(mod);
-                }
-            }
-            docco.run(['', '', '-o', conf.paths.doc].concat(arr));
-            
-            // There isn't a callback-based API for Docco so we'll need to give the writer
-            // some time to complete. Ugly, but there we go...
-            setTimeout(function () {
-                done();
-            }, 500);
-        }
-        else {
+		if (conf.data.manifest.docco) {
+			for (mod in pkg.compileCache) {
+				if (pkg.compileCache.hasOwnProperty(mod)) {
+					arr.push(mod);
+				}
+			}
+			docco.run(['', '', '-o', conf.paths.doc].concat(arr));
+			
+			// There isn't a callback-based API for Docco so we'll need to give the writer
+			// some time to complete. Ugly, but there we go...
+			setTimeout(function () {
+				done();
+			}, 500);
+		}
+		else {
 
-            grunt.combine.logger.write([{
-                'custom': 'Skipping... '
-            }]); 
+			grunt.combine.logger.write([{
+				'custom': 'Skipping... '
+			}]); 
 
-            done();
-        }
-    });
+			done();
+		}
+	});
 };

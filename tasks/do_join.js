@@ -11,70 +11,69 @@ wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 /* global require, module */
 
 var 
-    path        = require('path'),
-    fs          = require('fs'),
-    normpath    = require('../utils/normpath');
+	path		= require('path'),
+	fs			= require('fs'),
+	normpath	= require('../utils/normpath');
 
 module.exports = function (grunt) {
 
-    "use strict";
+	"use strict";
 
-    grunt.registerTask('do_join', function () {
+	grunt.registerTask('do_join', function () {
 
-        grunt.combine.logger.write([{ 'taskhead': 'Joining' }]);
+		grunt.combine.logger.write([{ 'taskhead': 'Joining' }]);
 
-        var 
+		var
+			inj		= grunt.option('inj'),
+			conf	= inj.get('conf'),
+			done	= this.async(),
+			include = conf.data.manifest.include || [],
+			len		= include.length,
+			source	= [],
+			count	= 0;
 
-            inj     = grunt.option('inj'),
-            conf    = inj.get('conf'),
-            done    = this.async(),
-            include = conf.data.manifest.include || [],
-            len     = include.length,
-            source  = [],
-            count   = 0;
+		if (len) {
 
-        if (len) {
+			var complete = (function () {
+				var calls = 0;
+				return function (source) {
+					if (++calls === len) {
+						grunt.pkg = {
+							source: source.join(';\n\n')
+						};
 
-            var complete = (function () {
-                var calls = 0;
-                return function (source) {
-                    if (++calls === len) {
-                        grunt.pkg = {
-                            source: source.join(';\n\n')
-                        };
+						grunt.combine.logger.write([{
+							'pass': 'Passed'
+						}, {
+							'duration': 'Duration: '
+						}]);
 
-                        grunt.combine.logger.write([{
-                            'pass': 'Passed'
-                        }, {
-                            'duration': 'Duration: '
-                        }]);
+						done();
+					}
+				};
+			}.call(this));
 
-                        done();
-                    }
-                };
-            }.call(this));
+			var getfiles = function (filepath, count) {
 
-            var getfiles = function (filepath, count) {
+				grunt.combine.logger.write([{'custom': filepath}]);
 
-                grunt.combine.logger.write([{'custom': filepath}]);
+				fs.readFile(filepath, {'encoding': 'utf8'}, function (err, data) {
+					err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
+					source[count] = data;
+					complete(source);
+				});
+			};
 
-                fs.readFile(filepath, {'encoding': 'utf8'}, function (err, data) {
-                    err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
-                    source[count] = data;
-                    complete(source);
-                });
-            };
-
-            include.forEach(function (item) {
-                getfiles(normpath(path.resolve(conf.paths.src, item)).slice(0, -1), count++);
-            });
-        }
-        else {
-            grunt.combine.logger.error('\n>> '.red 
-                + 'No framework items have been specified!' + '\n' 
-            , {
-                errcode: 3
-            });            
-        }
-    });
+			include.forEach(function (item) {
+				getfiles(normpath(path.resolve(conf.paths.src, item)).slice(0, -1), count++);
+			});
+		}
+		else {
+			grunt.combine.logger.error('\n>> '.red 
+				+ 'No framework items have been specified!' + '\n' 
+			, {
+				errcode: 3
+			});			
+		}
+	});
 };

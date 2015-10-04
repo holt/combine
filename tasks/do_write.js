@@ -11,156 +11,156 @@ wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 /* global require, module, process */
 
 var 
-    uglify      = require('uglify-js'),
-    beautify    = require('js-beautify').js_beautify,
-    fs          = require('fs'),
-    moment      = require('moment');
+	uglify		= require('uglify-js'),
+	beautify	= require('js-beautify').js_beautify,
+	moment		= require('moment'),
+	fs			= require('fs');
 
 module.exports = function (grunt) {
 
-    grunt.registerTask('do_write', function () {
+	grunt.registerTask('do_write', function () {
 
-        grunt.combine.logger.write([{'taskhead': 'Writing'}]);
+		grunt.combine.logger.write([{'taskhead': 'Writing'}]);
 
-        var 
-            inj         = grunt.option('inj'),
-            conf        = inj.get('conf'),
-            done        = this.async(),
-            date        = new Date(),
-            pkg         = grunt.pkg,
-            data        = pkg.source,
-            f           = conf.data.manifest.namespace + "." + conf.data.manifest.application + "." + conf.data.manifest.component,
-            licenses    = conf.data.manifest.licenses,
-            timestamp, copystamp, buildstamp, tl_ast, c_ast, compressed_data, uncompressed_data;
+		var 
+			inj			= grunt.option('inj'),
+			conf		= inj.get('conf'),
+			done		= this.async(),
+			date		= new Date(),
+			pkg			= grunt.pkg,
+			data		= pkg.source,
+			f			= conf.data.manifest.namespace + "." + conf.data.manifest.application + "." + conf.data.manifest.component,
+			licenses	= conf.data.manifest.licenses,
+			timestamp, copystamp, buildstamp, tl_ast, c_ast, compressed_data, uncompressed_data;
 
-        buildstamp  = "\n\n/*  Compiled by combine.js - Copyright © 2011-" + moment().year() + " M Holt. Distributed under the MIT License */";
+		buildstamp = "\n\n/*  Compiled by combine.js - Copyright © 2011-" + moment().year() + " M Holt. Distributed under the MIT License */";
 
-        var complete = inj.on(['status'], function (status, fullpath) {
+		var complete = inj.on(['status'], function (status, fullpath) {
 
-            fs.stat(fullpath, function (err, stats) {
+			fs.stat(fullpath, function (err, stats) {
 
-                err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
+				err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
 
-                grunt.combine.logger.write([{
-                    'custom': 'Generating compiled output... '
-                }, {
-                    'custom': fullpath.yellow.bold + '\n'
-                }, {
-                    'custom': 'Size: ' + (Math.round(stats.size / 1024) + 'Kb').bold
-                }, {
-                    'pass': 'Passed'
-                }, {
-                    'duration': 'Duration: '
-                }]);
+				grunt.combine.logger.write([{
+					'custom': 'Generating compiled output... '
+				}, {
+					'custom': fullpath.yellow.bold + '\n'
+				}, {
+					'custom': 'Size: ' + (Math.round(stats.size / 1024) + 'Kb').bold
+				}, {
+					'pass': 'Passed'
+				}, {
+					'duration': 'Duration: '
+				}]);
 
-                --status.active;
+				--status.active;
 
-                if (!status.active) {
-                    setTimeout(function () { done(); }, 250);
-                }
+				if (!status.active) {
+					setTimeout(function () { done(); }, 250);
+				}
 
-            }.bind(this));
-        }, this);
+			}.bind(this));
+		}, this);
 
-        var write_debug = function (theme, data, locale) {
-            
-            locale      = locale || 'en-US';
-            timestamp   = "/* Generated on "  + date.toString() + " by " + (process.env.USER || process.env.USERNAME) + " */\n\n";
+		var write_debug = function (theme, data, locale) {
+			
+			locale	  = locale || 'en-US';
+			timestamp   = "/* Generated on "  + date.toString() + " by " + (process.env.USER || process.env.USERNAME) + " */\n\n";
 
-            // Write uncompressed, beautified file
-            uncompressed_data = '/* File: ' + f + '-' + theme + '-' + locale + conf.suffixes.comb + ' */\n' + timestamp  + beautify(data, { indent_size: 4 }) + buildstamp;
-            
-            var fullpath = conf.paths.dest + f + '-' + theme + '-' + locale + conf.suffixes.comb;
-            fs.writeFile(fullpath, uncompressed_data, { encoding: 'utf8' }, function (err) {
-                
-                err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
-                complete(fullpath);
-                
-            });
-        };
+			// Write uncompressed, beautified file
+			uncompressed_data = '/* File: ' + f + '-' + theme + '-' + locale + conf.suffixes.comb + ' */\n' + timestamp  + beautify(data, { indent_size: 4 }) + buildstamp;
+			
+			var fullpath = conf.paths.dest + f + '-' + theme + '-' + locale + conf.suffixes.comb;
+			fs.writeFile(fullpath, uncompressed_data, { encoding: 'utf8' }, function (err) {
 
-        var write_release = function (theme, data, locale) {
+				err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
+				complete(fullpath);
 
-            locale      = locale || 'en-US';
-            copystamp   = "/* Copyright © " + moment().year() + " holt.org. All rights reserved. */\n";
+			});
+		};
 
-            // Uglify compressor / mangler
-            tl_ast = uglify.parse(data, {});
-            tl_ast.figure_out_scope();
-            c_ast = tl_ast.transform(uglify.Compressor({unused: false, warnings: false}));
-            c_ast.figure_out_scope();
-            c_ast.compute_char_frequency();
-            c_ast.mangle_names();
-            c_ast = c_ast.print_to_string();
+		var write_release = function (theme, data, locale) {
 
-            // Add licenses (if required)
-            if (licenses instanceof Array && licenses.length) {
-                var licensetxt = ''
-                    + '/*\n\n'
-                    + 'The following third-party files are used by this application:\n\n';
+			locale	  = locale || 'en-US';
+			copystamp   = "/* Copyright © " + moment().year() + " holt.org. All rights reserved. */\n";
 
-                licenses.forEach(function (item) {
-                    licensetxt = licensetxt + '\t' + item + '\n';
-                });
+			// Uglify compressor / mangler
+			tl_ast = uglify.parse(data, {});
+			tl_ast.figure_out_scope();
+			c_ast = tl_ast.transform(uglify.Compressor({unused: false, warnings: false}));
+			c_ast.figure_out_scope();
+			c_ast.compute_char_frequency();
+			c_ast.mangle_names();
+			c_ast = c_ast.print_to_string();
 
-                copystamp = copystamp 
-                    + '\n' 
-                    + licensetxt 
-                    + '\n*/\n\n';
-            }
+			// Add licenses (if required)
+			if (licenses instanceof Array && licenses.length) {
+				var licensetxt = ''
+					+ '/*\n\n'
+					+ 'The following third-party files are used by this application:\n\n';
 
-            // Write minified file
-            compressed_data = copystamp + c_ast + buildstamp;
+				licenses.forEach(function (item) {
+					licensetxt = licensetxt + '\t' + item + '\n';
+				});
 
-            var fullpath = conf.paths.dest + f + '-' + theme + '-' + locale + conf.suffixes.mini;
-            fs.writeFile(fullpath, compressed_data, { encoding: 'utf8' }, function (err) {
+				copystamp = copystamp 
+					+ '\n' 
+					+ licensetxt 
+					+ '\n*/\n\n';
+			}
 
-                err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
-                complete(fullpath);
-                
-            });
-        };
+			// Write minified file
+			compressed_data = copystamp + c_ast + buildstamp;
 
-        // The data may be an unstitched, unwrapped, concatenation of files (for example, 3rd-party
-        // data), so we need to put it into an object the writers can understand
-        if (typeof data === 'string') {
-            data = [{
-                name: 'default',
-                l10n: 'en-US',
-                data: data
-            }];            
-        }
+			var fullpath = conf.paths.dest + f + '-' + theme + '-' + locale + conf.suffixes.mini;
+			fs.writeFile(fullpath, compressed_data, { encoding: 'utf8' }, function (err) {
 
-        switch (conf.mode) {
+				err && grunt.combine.logger.error('\n>> '.red + err + '\n', { errcode: 3 });
+				complete(fullpath);
 
-        case 'debug':
-            data.forEach(inj.on(['status'], function (status, theme) {
-                status.active = status.active + 1;
-                write_debug(theme.name, theme.data, theme.l10n);
-            }, this));
-            break;
+			});
+		};
 
-        case 'release':
-            data.forEach(inj.on(['status'], function (status, theme) {
-                status.active = status.active + 1;
-                write_release(theme.name, theme.data, theme.l10n);
-            }, this));
-            break;
+		// The data may be an unstitched, unwrapped, concatenation of files (for example, 3rd-party
+		// data), so we need to put it into an object the writers can understand
+		if (typeof data === 'string') {
+			data = [{
+				name: 'default',
+				l10n: 'en-US',
+				data: data
+			}];
+		}
 
-        case 'all':
-            data.forEach(inj.on(['status'], function (status, theme) {
-                status.active = status.active + 1;
-                write_debug(theme.name, theme.data, theme.l10n);
-            }, this));
-            data.forEach(inj.on(['status'], function (status, theme) {
-                status.active = status.active + 1;
-                write_release(theme.name, theme.data, theme.l10n);
-            }, this));
-            break;
+		switch (conf.mode) {
 
-        default:
-            grunt.combine.logger.error('\n>> '.red + 'Output mode not recognized - must be \'debug\', \'release\' or \'all\''.red + '\n');
-        }
+		case 'debug':
+			data.forEach(inj.on(['status'], function (status, theme) {
+				status.active = status.active + 1;
+				write_debug(theme.name, theme.data, theme.l10n);
+			}, this));
+			break;
 
-    });
+		case 'release':
+			data.forEach(inj.on(['status'], function (status, theme) {
+				status.active = status.active + 1;
+				write_release(theme.name, theme.data, theme.l10n);
+			}, this));
+			break;
+
+		case 'all':
+			data.forEach(inj.on(['status'], function (status, theme) {
+				status.active = status.active + 1;
+				write_debug(theme.name, theme.data, theme.l10n);
+			}, this));
+			data.forEach(inj.on(['status'], function (status, theme) {
+				status.active = status.active + 1;
+				write_release(theme.name, theme.data, theme.l10n);
+			}, this));
+			break;
+
+		default:
+			grunt.combine.logger.error('\n>> '.red + 'Output mode not recognized - must be \'debug\', \'release\' or \'all\''.red + '\n');
+		}
+
+	});
 };

@@ -12,9 +12,9 @@ wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 // Normalize paths to RFC 3986.3.3
 module.exports = function (path) {
 
-    path = path.replace(/\\+/g, '\\');
-    path = path.split(/[\\+]|[/+]/g);
+	path = path.replace(/\\+/g, '\\');
+	path = path.split(/[\\+]|[/+]/g);
 
-    path[path.length - 1] || path.pop();
-    return path.join('/') + '/';
+	path[path.length - 1] || path.pop();
+	return path.join('/') + '/';
 };

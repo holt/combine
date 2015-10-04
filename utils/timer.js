@@ -11,59 +11,59 @@ wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 
 module.exports = (function () {
 
-    var base, err, last, running, starterr, stoperr, tick;
+	var base, err, last, running, starterr, stoperr, tick;
 
-    running = false;
-    tick    = 0;
-    last    = 0;
-    base    = 0;
-    
-    err = {
-        started: "The stopwatch is running; please stop it first.",
-        stopped: "The stopwatch is stopped; please start it first."
-    };
+	running = false;
+	tick	= 0;
+	last	= 0;
+	base	= 0;
+	
+	err = {
+		started: "The stopwatch is running; please stop it first.",
+		stopped: "The stopwatch is stopped; please start it first."
+	};
 
-    starterr    = new Error(err.started);
-    stoperr     = new Error(err.stopped);
-    
-    return {
+	starterr	= new Error(err.started);
+	stoperr		= new Error(err.stopped);
+	
+	return {
 
-        start: function () {
+		start: function () {
 
-            if (running) throw starterr;
-            
-            running = true;
-            tick    = 0;
-            last    = 0;
+			if (running) throw starterr;
+			
+			running = true;
+			tick	= 0;
+			last	= 0;
 
-            return base = (new Date()).getTime();
-        },
+			return base = (new Date()).getTime();
+		},
 
-        tick: function () {
+		tick: function () {
 
-            var a, b;
+			var a, b;
 
-            if (!running) throw stoperr;
+			if (!running) throw stoperr;
 
-            b       = last;
-            last    = a = (new Date()).getTime() - base;
-            
-            return {
-                last: a - b,
-                full: a
-            };
-        },
+			b		= last;
+			last	= a = (new Date()).getTime() - base;
+			
+			return {
+				last: a - b,
+				full: a
+			};
+		},
 
-        stop: function () {
+		stop: function () {
 
-            var _tick;
-            if (!running) throw stoperr;
+			var _tick;
+			if (!running) throw stoperr;
 
-            running = false;
-            _tick   = (new Date()).getTime() - base;
+			running = false;
+			_tick   = (new Date()).getTime() - base;
 
-            tick = base = 0;            
-            return _tick;
-        }
-    };
+			tick = base = 0;			
+			return _tick;
+		}
+	};
 })();

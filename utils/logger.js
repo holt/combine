@@ -11,128 +11,128 @@ wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 
 var CombineLog = function (grunt, options) {
 
-    options = options || {};
-    this.timer = (options.timer && options.timer.start) ? options.timer : false;
+	options = options || {};
+	this.timer = (options.timer && options.timer.start) ? options.timer : false;
 
-    var colorhandler = function (type) {
-        return function (str) {
-            type(str = (options.colors === false) ? str.stripColors : str);
-        };
-    };
+	var colorhandler = function (type) {
+		return function (str) {
+			type(str = (options.colors === false) ? str.stripColors : str);
+		};
+	};
 
-    this.wrn = colorhandler(grunt.log.warn);
-    this.wrt = colorhandler(grunt.log.write);
-    this.wln = colorhandler(grunt.log.writeln);
-    this.err = colorhandler(console.error);
+	this.wrn = colorhandler(grunt.log.warn);
+	this.wrt = colorhandler(grunt.log.write);
+	this.wln = colorhandler(grunt.log.writeln);
+	this.err = colorhandler(console.error);
 
-    this.timer && this.timer.start();
-    this.exit = false;
+	this.timer && this.timer.start();
+	this.exit = false;
 };
 
 CombineLog.prototype.handlers = {
 
-    custom: function (txt) {
-        return ''
-            + '\n>> '.green
-            + txt;
-    },
+	custom: function (txt) {
+		return ''
+			+ '\n>> '.green
+			+ txt;
+	},
 
-    taskhead: function (txt) {
-        var len = txt.length,
-            res = (80 - (len + 2)),
-            str = '';
-        while (res) {
-            str += '-';
-            res--;
-        }
-        str = '\n--- ' + txt + ' ' + str + '\n';
-        return str.bold;
-    },
+	taskhead: function (txt) {
+		var len = txt.length,
+			res = (80 - (len + 2)),
+			str = '';
+		while (res) {
+			str += '-';
+			res--;
+		}
+		str = '\n--- ' + txt + ' ' + str + '\n';
+		return str.bold;
+	},
 
-    subhead: function (txt) {
-        return ''
-            + '\n'
-            + '>> '.green
-            + txt;
-    },
+	subhead: function (txt) {
+		return ''
+			+ '\n'
+			+ '>> '.green
+			+ txt;
+	},
 
-    pass: function (txt) {
+	pass: function (txt) {
 
-        this.tick = this.timer
-            ? this.timer.tick()
-            : {
-                'last': 'unknown',
-                'full': 'unknown'
-            };
+		this.tick = this.timer
+			? this.timer.tick()
+			: {
+				'last': 'unknown',
+				'full': 'unknown'
+			};
 
-        var dur = this.timer
-            ? (' @ ' + (this.tick.full + '' + 'ms').white.bold)
-            : '';
+		var dur = this.timer
+			? (' @ ' + (this.tick.full + '' + 'ms').white.bold)
+			: '';
 
-        return ''
-            + '\n>> '.green
-            + txt.green.bold
-            + dur;
-    },
+		return ''
+			+ '\n>> '.green
+			+ txt.green.bold
+			+ dur;
+	},
 
-    duration: function (txt) {
+	duration: function (txt) {
 
-        var dur = (this.timer)
-            ? (this.tick.last + 'ms').white.bold
-            : 'unknown';
+		var dur = (this.timer)
+			? (this.tick.last + 'ms').white.bold
+			: 'unknown';
 
-        return ''
-            + '\n>> '.green
-            + txt
-            + dur
-            + '\n';
-    },
+		return ''
+			+ '\n>> '.green
+			+ txt
+			+ dur
+			+ '\n';
+	},
 };
 
 CombineLog.prototype.error = function (data, opts) {
 
-    opts = opts || {};
-    opts.errcode = opts.errcode || 1;
+	opts = opts || {};
+	opts.errcode = opts.errcode || 1;
 
-    data = (typeof data === 'string')
-        ? data
-        : (typeof data === 'object')
-            ? JSON.stringify(data, null, 4)
-            : null;
+	data = (typeof data === 'string')
+		? data
+		: (typeof data === 'object')
+			? JSON.stringify(data, null, 4)
+			: null;
 
-    if (opts.silent !== true && data) {
-        this.err(data);
-    }
+	if (opts.silent !== true && data) {
+		this.err(data);
+	}
 
-    if (!process.stdout.isTTY) {
-        this.exit = true;
-        process.exit(opts.errcode);
-    }
+	if (!process.stdout.isTTY) {
+		this.exit = true;
+		process.exit(opts.errcode);
+	}
 },
 
 CombineLog.prototype.write = function (arr) {
 
-    if (this.exit) return this;
+	if (this.exit) return this;
 
-    var ref = null,
-        hasProp = {}.hasOwnProperty;
+	var ref = null,
+		hasProp = {}.hasOwnProperty;
 
-    arr = (arr instanceof Array)
-        ? arr
-        : (typeof arr === 'object') ? [arr] : {};
+	arr = (arr instanceof Array)
+		? arr
+		: (typeof arr === 'object') ? [arr] : {};
 
-    arr.forEach(function (item) {
-        for (var key in item) {
-            if (hasProp.call(item, key)) {
-                ref = this.handlers[key];
-                ref = (ref) ? ref.call(this, item[key]) : ref;
-                if (ref) {
-                    this.wrt(ref);
-                }
-            }
-        }
-    }, this);
-    return this;
+	arr.forEach(function (item) {
+		for (var key in item) {
+			if (hasProp.call(item, key)) {
+				ref = this.handlers[key];
+				ref = (ref) ? ref.call(this, item[key]) : ref;
+				if (ref) {
+					this.wrt(ref);
+				}
+			}
+		}
+	}, this);
+	return this;
 };
 
 module.exports = CombineLog;

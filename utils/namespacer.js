@@ -10,14 +10,14 @@ mootools:false, node:false, nonstandard:false, prototypejs:false, rhino:false, s
 wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 
 var ns = function (_ns, nsObj, sep) {
-    var obj, _i, _len;
-    nsObj = nsObj || window;
-    _ns = _ns.split(sep || '.');
-    for (_i = 0, _len = _ns.length; _i < _len; _i++) {
-        obj = _ns[_i];
-        nsObj = (nsObj[obj] = nsObj[obj] || {});
-    }
-    return nsObj;
+	var obj, _i, _len;
+	nsObj = nsObj || window;
+	_ns = _ns.split(sep || '.');
+	for (_i = 0, _len = _ns.length; _i < _len; _i++) {
+		obj = _ns[_i];
+		nsObj = (nsObj[obj] = nsObj[obj] || {});
+	}
+	return nsObj;
 };
 
 module.exports = ns;

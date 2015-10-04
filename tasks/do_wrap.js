@@ -12,108 +12,108 @@ wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 
 module.exports = function (grunt) {
 
-    grunt.registerTask('do_wrap', function () {
+	grunt.registerTask('do_wrap', function () {
 
-        grunt.combine.logger.write([{'taskhead': 'Wrapper'}]);
+		grunt.combine.logger.write([{'taskhead': 'Wrapper'}]);
 
-        var
-            inj         = grunt.option('inj'),        
-            conf        = inj.get('conf'),
-            pkg         = grunt.pkg,
-            data        = pkg.source,
-            manifest    = conf.data.manifest,
-            comp        = manifest.component,
-            mainmethod  = manifest.main || 'main',
-            thiscomp    = 'this.' + comp;
+		var
+			inj		 	= grunt.option('inj'),		
+			conf		= inj.get('conf'),
+			pkg			= grunt.pkg,
+			data		= pkg.source,
+			manifest	= conf.data.manifest,
+			comp		= manifest.component,
+			mainmethod  = manifest.main || 'main',
+			thiscomp	= 'this.' + comp;
 
-        var eventname   = (manifest.event === true)
-                ? 'init.' + comp : Boolean(manifest.event)
-                ? manifest.event : false;
-            
-        pkg.deps = pkg.deps || [];
+		var eventname = (manifest.event === true)
+				? 'init.' + comp : Boolean(manifest.event)
+				? manifest.event : false;
+			
+		pkg.deps = pkg.deps || [];
 
-        if (manifest.wrap !== false) {
+		if (manifest.wrap !== false) {
 
-            /* Utility function to build the invocation structure that either starts
-            the component automatically, or waits for an event of the form "init.<component>" */
-            var invoc = function (type) {
+			/* Utility function to build the invocation structure that either starts
+			the component automatically, or waits for an event of the form "init.<component>" */
+			var invoc = function (type) {
 
-                var chunk = "";
+				var chunk = "";
 
-                switch (type) {
+				switch (type) {
 
-                // Assume module is not stitched and therefore does not require an invocation handler
-                case false: 
-                    break;
+				// Assume module is not stitched and therefore does not require an invocation handler
+				case false: 
+					break;
 
-                // Run the module automatically on instantiation (don't wait for event)
-                default:
+				// Run the module automatically on instantiation (don't wait for event)
+				default:
 
-                    // Wrapper for event-based invocation of the module
-                    if (eventname) {
+					// Wrapper for event-based invocation of the module
+					if (eventname) {
 
-                        chunk = ""
-                            +   "\n/* Event listener binding and Stitch object cleanup */\n"
-                            +   "if (typeof Backbone !== 'undefined' && Backbone !== null) {"   
-                            +       "var _ref;"
-                            +       "if ((_ref = Backbone) != null) {"
-                            +           "var _ref1;"            
-                            +           "if ((_ref1 = _ref.Events) != null) {"
-                            +               "_ref1.on('" + eventname + "', function(ev) {"
-                            +                   thiscomp + "_require('" + mainmethod + "');" 
-                            +                   thiscomp + "_require = void 0;"
-                            +                   "try {delete " + thiscomp + "_require;}" 
-                            +                   "catch(e){};"
-                            +               "}, this);"
-                            +           "}"
-                            +       "}"
-                            +   "}\n\n";
+						chunk = ""
+							+   "\n/* Event listener binding and Stitch object cleanup */\n"
+							+   "if (typeof Backbone !== 'undefined' && Backbone !== null) {"   
+							+	   "var _ref;"
+							+	   "if ((_ref = Backbone) != null) {"
+							+		   "var _ref1;"			
+							+		   "if ((_ref1 = _ref.Events) != null) {"
+							+			   "_ref1.on('" + eventname + "', function(ev) {"
+							+				   thiscomp + "_require('" + mainmethod + "');" 
+							+				   thiscomp + "_require = void 0;"
+							+				   "try {delete " + thiscomp + "_require;}" 
+							+				   "catch(e){};"
+							+			   "}, this);"
+							+		   "}"
+							+	   "}"
+							+   "}\n\n";
 
-                    }
-                    
-                    //  Wrapper for automatic invocation of the module
-                    else {
-                        chunk = ""
-                            + "\n/* Module invocation and Stitch object cleanup */\n"
-                            + "if (" + thiscomp + "_require) {"
-                            +       thiscomp + "_require('" + mainmethod + "');" 
-                            +       thiscomp + "_require = void 0;" 
-                            +       "try {delete " + thiscomp + "_require;}" 
-                            +       "catch(e){};"
-                            + "}\n\n";
-                    }
+					}
+					
+					//  Wrapper for automatic invocation of the module
+					else {
+						chunk = ""
+							+ "\n/* Module invocation and Stitch object cleanup */\n"
+							+ "if (" + thiscomp + "_require) {"
+							+	thiscomp + "_require('" + mainmethod + "');" 
+							+	thiscomp + "_require = void 0;" 
+							+	"try {delete " + thiscomp + "_require;}" 
+							+	"catch(e){};"
+							+ "}\n\n";
+					}
 
-                    break;
+					break;
 
-                }
+				}
 
-                return chunk;
-            };
+				return chunk;
+			};
 
-            data = data.replace(/this.require/g, thiscomp + '_require');
-            pkg.source = [];
+			data = data.replace(/this.require/g, thiscomp + '_require');
+			pkg.source = [];
 
-            pkg.deps.forEach(function (theme) {
+			pkg.deps.forEach(function (theme) {
 
-                // Generic wrapper for stitched/concatenated output
-                var payload = ""
-                    + "(function( /*! Packaged using Combine.js v" + conf.VERSION + " by Michael Holt !*/ ){\n"
-                    +   '\n"use strict";\n'
-                    +   data           
-                    +   theme.css
-                    +   theme.tpl
-                    +   invoc(manifest.wrap)
-                    + "}.call(window));";
+				// Generic wrapper for stitched/concatenated output
+				var payload = ""
+					+ "(function( /*! Packaged using Combine.js v" + conf.VERSION + " by Michael Holt !*/ ){\n"
+					+	'\n"use strict";\n'
+					+	data
+					+	theme.css
+					+   theme.tpl
+					+   invoc(manifest.wrap)
+					+ "}.call(window));";
 
-                pkg.source.push({
-                    name: theme.name,
-                    data: payload
-                });
+				pkg.source.push({
+					name: theme.name,
+					data: payload
+				});
 
-            });
-        }
+			});
+		}
 
-        grunt.combine.logger.write([{'pass': 'Passed'}, {'duration': 'Duration: '}]);
-    });
+		grunt.combine.logger.write([{'pass': 'Passed'}, {'duration': 'Duration: '}]);
+	});
 
 };

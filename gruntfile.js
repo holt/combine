@@ -10,74 +10,74 @@ mootools:false, node:false, nonstandard:false, prototypejs:false, rhino:false, s
 wsh:false, nomen:false, onevar:false, passfail:false, white:true, indent:4 */
 /* global require, root */
 
-var 
-    timer       = require('./utils/timer'),
-    Logger      = require('./utils/logger'),
-    jshintopts  = require('./jshintrc');
+var
+	timer		= require('./utils/timer'),
+	Logger		= require('./utils/logger'),
+	jshintopts	= require('./jshintrc');
 
 module.exports = function (grunt) {
 
-    // Give grunt a global hook
-    root.grunt  = grunt;
-    
-    var 
-        inj     = grunt.option('inj'),
-        conf    = inj.get('conf');
+	// Give grunt a global hook
+	root.grunt = grunt;
+	
+	var
+		inj		= grunt.option('inj'),
+		conf	= inj.get('conf');
 
-    // Use custom JSHint error reporter
-    jshintopts.reporter = __dirname + '/utils/reporter.js';
+	// Use custom JSHint error reporter
+	jshintopts.reporter = __dirname + '/utils/reporter.js';
 
-    // Allow debuggers to be used when compiling in strict debug mode
-    if (conf.mode === 'debug') {
-        jshintopts.debug = true;
-    }
+	// Allow debuggers to be used when compiling in strict debug mode
+	if (conf.mode === 'debug') {
+		jshintopts.debug = true;
+	}
 
-    // Project configuration.
-    grunt.initConfig({
-        watch: {
-            "default": {
-                files: [conf.paths.src + '/**/*.js', conf.paths.src + '/**/*.hbs', conf.paths.src + '/**/*.css', conf.paths.src + '/**/*.coffee', conf.paths.src + '/**/*.json'],
-                tasks: ['default'],
-                options: {
-                    spawn: false
-                }
-            },
-            "nohint": {
-                files: [conf.paths.src + '/**/*.js', conf.paths.src + '/**/*.hbs', conf.paths.src + '/**/*.css', conf.paths.src + '/**/*.coffee', conf.paths.src + '/**/*.json'],
-                tasks: ['nohint'],
-                options: {
-                    spawn: false
-                }
-            },
-            framework: {
-                files: [ conf.paths.src + '/**/*.js', conf.paths.src + '/**/*.hbs'],
-                tasks: ['framework'],
-                options: {
-                    spawn: false
-                }
-            }
-        },
-        "jshint": {
-            options: jshintopts,
-            all: [ conf.paths.src + '/**/*.js' ]
-        }
-    });
+	// Project configuration.
+	grunt.initConfig({
+		watch: {
+			"default": {
+				files: [conf.paths.src + '/**/*.js', conf.paths.src + '/**/*.hbs', conf.paths.src + '/**/*.css', conf.paths.src + '/**/*.coffee', conf.paths.src + '/**/*.json'],
+				tasks: ['default'],
+				options: {
+					spawn: false
+				}
+			},
+			"nohint": {
+				files: [conf.paths.src + '/**/*.js', conf.paths.src + '/**/*.hbs', conf.paths.src + '/**/*.css', conf.paths.src + '/**/*.coffee', conf.paths.src + '/**/*.json'],
+				tasks: ['nohint'],
+				options: {
+					spawn: false
+				}
+			},
+			framework: {
+				files: [ conf.paths.src + '/**/*.js', conf.paths.src + '/**/*.hbs'],
+				tasks: ['framework'],
+				options: {
+					spawn: false
+				}
+			}
+		},
+		"jshint": {
+			options: jshintopts,
+			all: [ conf.paths.src + '/**/*.js' ]
+		}
+	});
 
-    grunt.combine = {
-        logger: new Logger(grunt, {
-            timer: timer,
-            colors: conf.log.colors
-        })
-    };
+	grunt.combine = {
+		logger: new Logger(grunt, {
+			timer: timer,
+			colors: conf.log.colors
+		})
+	};
 
-    // Load tasks and supporting libs
-    grunt.loadTasks('tasks');
-    
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-watch');
+	// Load tasks and supporting libs
+	grunt.loadTasks('tasks');
+	
+	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-watch');
 
-    grunt.registerTask('default', ['jshint', 'do_stitch', 'do_deps', 'do_wrap', 'do_l10n', 'do_write', /*'do_report',*/ 'do_docco']);
-    grunt.registerTask('nohint', ['do_stitch', 'do_deps', 'do_wrap', 'do_l10n', 'do_write', /*'do_report',*/ 'do_docco']);
-    grunt.registerTask('framework', ['do_join',  'do_deps', 'do_wrap', 'do_write']);
+	grunt.registerTask('default', ['jshint', 'do_stitch', 'do_deps', 'do_wrap', 'do_l10n', 'do_write', 'do_docco']);
+	grunt.registerTask('nohint', ['do_stitch', 'do_deps', 'do_wrap', 'do_l10n', 'do_write', 'do_docco']);
+	grunt.registerTask('framework', ['do_join',  'do_deps', 'do_wrap', 'do_write']);
 
 };
